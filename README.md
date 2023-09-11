@@ -15,6 +15,8 @@ bun run index.ts
 This project was created using `bun init` in bun v1.0.0. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
 # Usage
 
+!!!! THIS REPO FOR ONLY FUN! DO NOT USE IT !!!!
+
 ```ts
 // create an Elipse app
 const app = createElipseApp({
