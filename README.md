@@ -20,22 +20,28 @@ This project was created using `bun init` in bun v1.0.0. [Bun](https://bun.sh) i
 !!!! THIS REPO FOR ONLY FUN! DO NOT USE IT !!!!
 
 ```ts
+const HOSTNAME = "localhost";
+const PORT = 8080;
+
 // create an Elipse app
 const app = createElipseApp({
-    port: 8080,
-    hostname: "localhost",
-    prefix: "/api"
+    prefix: "/api",
 });
 
+app.get("/", async () => new Response("Hello y'all!"));
+
 // set your middleware functions and endpoint function
-app.setRoute("/hello", UserLoggedIn, Hello);
-app.setRoute("/hello2", Hello);
+app.get("/hello", UserLoggedIn, Hello);
+app.get("/hello2", Hello);
+app.post("/hello2", async () => new Response("Hello, World!"));
 
 // lastly, serve the app with Bun!
 Bun.serve({
-    port: 8080,
-    hostname: "localhost",
-    fetch: app.handle
+    port: PORT,
+    hostname: HOSTNAME,
+    fetch: app.handle,
 });
+
+console.log(`Server running at http://${HOSTNAME}:${PORT}/`);
 
 ```
