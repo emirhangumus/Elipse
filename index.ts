@@ -12,7 +12,7 @@ const app = createElipseApp({
 app.get("/", async () => new Response("Hepinize merhaba!"));
 
 app.get("/hello", Hello);
-app.get("/hello2", Hello);
+app.get("/hello2", UserLoggedIn, Hello);
 app.post("/hello2", async () => new Response("Hello, Me!!"));
 app.del("/hello2", async () => new Response("Deleted!"));
 app.put("/hello2", async () => new Response("Updated!"));
