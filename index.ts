@@ -28,6 +28,7 @@ app.put("/actions", async () => new Response("Update!"));
 
 // you can change the error handlers 
 app.error(404, (message) => new Response(`Not found: ${message}`, { status: 404 }));
+
 Bun.serve({
     port: PORT,
     hostname: HOSTNAME,
