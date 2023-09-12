@@ -1,5 +1,7 @@
 # Elipse Package
 
+A small package for api routing, middlewares and response with Bun!
+
 To install dependencies:
 
 ```bash
