@@ -1,4 +1,4 @@
-import type { Handler, AppConfig, HandleFunction, MiddlewareFunction, NextFunction, RequestType, RoutesMap, ErrorRoutesMap } from "./types/Types";
+import type { Handler, AppConfig, HandleFunction, MiddlewareFunction, NextFunction, RequestType, RoutesMap, ErrorRoutesMap, JsonObject } from "./types/Types";
 
 class RouteMap {
     private routes: RoutesMap = {};
@@ -37,11 +37,33 @@ class ErrorRoutes {
     }
 }
 
+class UseCollection {
+    private uses: MiddlewareFunction[] = [];
+
+    add(handler: MiddlewareFunction) {
+        this.uses.push(handler);
+    }
+
+    get() {
+        return this.uses;
+    }
+
+    clear() {
+        this.uses = [];
+    }
+}
+
+/**
+ * The main function to create an app
+ * @param param0 The app config
+ * @returns The app object
+ */
 function createElipseApp({
     prefix = "/api",
 } = {} as AppConfig) {
     const app = new RouteMap();
     const errorRoutes = new ErrorRoutes();
+    const useCollection = new UseCollection();
 
     /**
      * 
@@ -142,9 +164,9 @@ function createElipseApp({
 
                 switch (response.status) {
                     case 404:
-                        return errorRoutes.get(404)?.("Route not found");
+                        return errorRoutes.get(404)?.(await (await response.blob()).text());
                     case 500:
-                        return errorRoutes.get(500)?.("Internal Server Error");
+                        return errorRoutes.get(500)?.(await (await response.blob()).text());
                 }
 
                 return response;
@@ -156,8 +178,11 @@ function createElipseApp({
                     return new Response("Not Found", { status: 404 });
                 }
             }
-        } catch (error) {
-            return new Response(error.message, { status: 500 });
+        } catch (error: any) {
+            return new Response(
+                error.message || "Something went wrong",
+                { status: 500 }
+            );
         }
     }
 
@@ -172,7 +197,7 @@ function createElipseApp({
         const endpoint = handlers[handlers.length - 1];
 
         app.set(prefix + path, {
-            middlewares: middlewares as unknown as MiddlewareFunction[],
+            middlewares: [...useCollection.get(), ...middlewares] as MiddlewareFunction[],
             endpoint: endpoint as unknown as HandleFunction,
         }, type);
     }
@@ -231,6 +256,13 @@ function createElipseApp({
         setRoute(path, "DELETE", ...handlers);
     }
 
+    function use(...handlers: MiddlewareFunction[]) {
+        do {
+            useCollection.add(handlers[0]);
+            handlers.shift();
+        } while (handlers.length > 0);
+    }
+
     /**
      * 
      * @param code The error code
@@ -248,10 +280,27 @@ function createElipseApp({
         post,
         put,
         del,
+        use,
         error,
     };
 }
 
+function getQuery(req: Request): Record<string, string> {
+    return JSON.parse(req.headers.get("query") || "{}");
+}
+
+async function getBody(req: Request, {
+    type = "json",
+} = { type: "json" }): Promise<string | undefined | JsonObject> {
+    let r = await req.body?.getReader().read().then(({ value }) => new TextDecoder().decode(value))
+    if (type === "json") {
+        return JSON.parse(r || "{}");
+    }
+    return r;
+}
+
 export {
     createElipseApp,
+    getQuery,
+    getBody,
 }

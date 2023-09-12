@@ -26,6 +26,8 @@ type Handler = {
     endpoint: HandleFunction;
 }
 
+type JsonObject = Record<string, any>;
+
 export {
     AppConfig,
     HandleFunction,
@@ -34,5 +36,6 @@ export {
     Handler,
     RequestType,
     RoutesMap,
-    ErrorRoutesMap
+    ErrorRoutesMap,
+    JsonObject
 }

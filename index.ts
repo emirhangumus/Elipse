@@ -9,16 +9,25 @@ const app = createElipseApp({
     prefix: "/api",
 });
 
-app.get("/", async () => new Response("Hepinize merhaba!"));
+app.get("/", async () => new Response("Hello y'all!"));
 
-app.get("/hello", Hello);
-app.get("/hello2", UserLoggedIn, Hello);
-app.post("/hello2", async () => new Response("Hello, Me!!"));
-app.del("/hello2", async () => new Response("Deleted!"));
-app.put("/hello2", async () => new Response("Updated!"));
+// You can use `use` to use functions that every route in below of it.
+app.use(async (req, next) => {
+    console.log("Middleware 1");
+    return next(req);
+}, UserLoggedIn);
 
+// set your middleware functions and endpoint function
+app.get("/hello", UserLoggedIn, Hello);
+app.get("/hello2", Hello);
+
+app.get("/actions", async () => new Response("Get!"));
+app.post("/actions", async () => new Response("Post!"));
+app.del("/actions", async () => new Response("Delete!"));
+app.put("/actions", async () => new Response("Update!"));
+
+// you can change the error handlers 
 app.error(404, (message) => new Response(`Not found: ${message}`, { status: 404 }));
-
 Bun.serve({
     port: PORT,
     hostname: HOSTNAME,
