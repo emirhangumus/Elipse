@@ -35,6 +35,9 @@ app.get("/hello", UserLoggedIn, Hello);
 app.get("/hello2", Hello);
 app.post("/hello2", async () => new Response("Hello, World!"));
 
+// you can change the error handlers 
+app.error(404, (message) => new Response(`Not found: ${message}`, { status: 404 }));
+
 // lastly, serve the app with Bun!
 Bun.serve({
     port: PORT,
