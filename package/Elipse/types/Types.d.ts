@@ -10,6 +10,15 @@ type MiddlewareFunction = (req: Request, next: NextFunction) => Promise<Response
 
 type RequestType = "GET" | "POST" | "PUT" | "DELETE";
 
+type RoutesMap = Record<string, {
+    "POST": Handler | undefined;
+    "GET": Handler | undefined;
+    "PUT": Handler | undefined;
+    "DELETE": Handler | undefined;
+}>;
+
+type ErrorRoutesMap = Record<number, (message: string) => Response>;
+
 type Handlers = [...HandleFunction[]];
 
 type Handler = {
@@ -24,4 +33,6 @@ export {
     NextFunction,
     Handler,
     RequestType,
+    RoutesMap,
+    ErrorRoutesMap
 }
