@@ -1,6 +1,4 @@
 type AppConfig = {
-    port: number;
-    hostname: string;
     prefix: string;
 };
 
@@ -10,6 +8,7 @@ type HandleFunction = (req: Request) => Promise<Response>;
 
 type MiddlewareFunction = (req: Request, next: NextFunction) => Promise<Response | Request>;
 
+type RequestType = "GET" | "POST" | "PUT" | "DELETE";
 
 type Handlers = [...HandleFunction[]];
 
@@ -23,5 +22,6 @@ export {
     HandleFunction,
     MiddlewareFunction,
     NextFunction,
-    Handler
+    Handler,
+    RequestType,
 }
