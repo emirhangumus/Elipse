@@ -1,6 +1,6 @@
 # Elipse Package
 
-A small package for api routing, middlewares and response with Bun!
+A small Express like package for api routing, middlewares and response with Bun runtime!
 
 To install dependencies:
 
