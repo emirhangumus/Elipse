@@ -23,7 +23,6 @@ This project was created using `bun init` in bun v1.0.0. [Bun](https://bun.sh) i
 const HOSTNAME = "localhost";
 const PORT = 8080;
 
-// create an Elipse app
 const app = createElipseApp({
     prefix: "/api",
 });
@@ -31,24 +30,27 @@ const app = createElipseApp({
 app.get("/", async () => new Response("Hello y'all!"));
 
 // You can use `use` to use functions that every route in below of it.
-app.use(async (req, next) => {
-    console.log("Middleware 1");
-    return next(req);
-}, UserLoggedIn);
+// app.use(async (req, next) => {
+//     console.log("Middleware 1");
+//     return next(req);
+// }, UserLoggedIn);
+
+app.intercept(...interceptFunctions);
 
 // set your middleware functions and endpoint function
 app.get("/hello", UserLoggedIn, Hello);
 app.get("/hello2", Hello);
 
-app.get("/actions", async () => new Response("Get!"));
+app.get("/actions", async () => eJson({ hello: "world" }));
 app.post("/actions", async () => new Response("Post!"));
 app.del("/actions", async () => new Response("Delete!"));
 app.put("/actions", async () => new Response("Update!"));
 
+app.get("/json", async () => eJson({ hello: "world" }));
+
 // you can change the error handlers 
 app.error(404, (message) => new Response(`Not found: ${message}`, { status: 404 }));
 
-// lastly, serve the app with Bun!
 Bun.serve({
     port: PORT,
     hostname: HOSTNAME,
