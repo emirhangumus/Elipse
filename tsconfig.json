@@ -19,5 +19,5 @@
       "bun-types" // add Bun global
     ]
   },
-  "include": ["./src/**/*", "package/Elipse/types"],
+  "include": ["./src/**/*", "package/Elipse/types", "package/Elipse"],
 }

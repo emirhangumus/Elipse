@@ -1,4 +1,4 @@
-import type { Handler, AppConfig, HandleFunction, MiddlewareFunction, NextFunction, RequestType, RoutesMap, ErrorRoutesMap, JsonObject } from "./types/Types";
+import type { Handler, AppConfig, HandleFunction, MiddlewareFunction, NextFunction, RequestType, RoutesMap, ErrorRoutesMap, JsonObject, IntercepterFunction } from "./types/Types";
 
 class RouteMap {
     private routes: RoutesMap = {};
@@ -53,6 +53,22 @@ class UseCollection {
     }
 }
 
+class Intercepters {
+    private intercepters: IntercepterFunction[] = [];
+
+    add(handler: IntercepterFunction) {
+        this.intercepters.push(handler);
+    }
+
+    get() {
+        return this.intercepters;
+    }
+
+    clear() {
+        this.intercepters = [];
+    }
+}
+
 /**
  * The main function to create an app
  * @param param0 The app config
@@ -64,6 +80,7 @@ function createElipseApp({
     const app = new RouteMap();
     const errorRoutes = new ErrorRoutes();
     const useCollection = new UseCollection();
+    const intercepters = new Intercepters();
 
     /**
      * 
@@ -135,6 +152,17 @@ function createElipseApp({
         return req;
     }
 
+    async function runIntercepters(req: Request, res: Response): Promise<Response> {
+
+        let j = res;
+
+        for (const intercepter of intercepters.get()) {
+            j = await intercepter(req, j);
+        }
+
+        return j;
+    }
+
     /**
      * 
      * @param req The request object
@@ -169,7 +197,9 @@ function createElipseApp({
                         return errorRoutes.get(500)?.(await (await response.blob()).text());
                 }
 
-                return response;
+                const intercepted = await runIntercepters(new_req, response);
+
+                return intercepted;
             } else {
                 if (errorRoutes.get(404)) {
                     // @ts-ignore
@@ -263,6 +293,13 @@ function createElipseApp({
         } while (handlers.length > 0);
     }
 
+    function intercept(...handlers: IntercepterFunction[]) {
+        do {
+            intercepters.add(handlers[0]);
+            handlers.shift();
+        } while (handlers.length > 0);
+    }
+
     /**
      * 
      * @param code The error code
@@ -282,6 +319,7 @@ function createElipseApp({
         del,
         use,
         error,
+        intercept,
     };
 }
 
@@ -299,8 +337,23 @@ async function getBody(req: Request, {
     return r;
 }
 
+async function eJson(json: JsonObject | string | object, init?: ResponseInit) {
+    return new Response(JSON.stringify(json), {
+        headers: {
+            "Content-Type": "application/json",
+        },
+        ...init,
+    });
+}
+
+async function getResponseContent(res: Response) {
+    return await res.clone().text().then((text) => text);
+}
+
 export {
     createElipseApp,
     getQuery,
     getBody,
+    eJson,
+    getResponseContent,
 }

@@ -8,6 +8,8 @@ type HandleFunction = (req: Request) => Promise<Response>;
 
 type MiddlewareFunction = (req: Request, next: NextFunction) => Promise<Response | Request>;
 
+type IntercepterFunction = (req: Request, res: Response) => Promise<Response>;
+
 type RequestType = "GET" | "POST" | "PUT" | "DELETE";
 
 type RoutesMap = Record<string, {
@@ -33,6 +35,7 @@ export {
     HandleFunction,
     MiddlewareFunction,
     NextFunction,
+    IntercepterFunction,
     Handler,
     RequestType,
     RoutesMap,

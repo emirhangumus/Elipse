@@ -1,11 +1,7 @@
-import { getBody, getQuery } from "../../package/Elipse";
+import { eJson } from "../../package/Elipse";
 
 async function Hello(req: Request): Promise<Response> {
-    return new Response(JSON.stringify({
-        message: `Fine!`,
-    }), {
-        status: 200,
-    });
+    return eJson({ hello: "world" });
 }
 
 export default Hello;
